@@ -1,0 +1,105 @@
+
+/* === Box === */
+@mixin box($width, $height: $width) {
+  width: $width;
+  height: $height;
+}
+
+/* === Font Face === */
+@mixin font($font-name, $path, $weight: normal, $style: normal) {
+  @font-face {
+    font-family: quote($font-name);
+    src: url($path+".woff2") format("woff2");
+    font-weight: $weight;
+    font-style: $style;
+  }
+}
+
+/* === Font Size === */
+@mixin font-size($font-size, $line-height: normal, $letter-spacing: normal) {
+  font-size: $font-size * 0.1rem;
+
+  @if $line-height==normal {
+    line-height: normal;
+  } @else {
+    line-height: $line-height / $font-size;
+  }
+
+  @if $letter-spacing==normal {
+    letter-spacing: normal;
+  } @else {
+    letter-spacing: #{$letter-spacing / $font-size}em;
+  }
+}
+
+/* === Background === */
+@mixin bg($url, $position: center, $fit: cover, $repeat: no-repeat) {
+  background: url('../images/' + $url) $position/$fit $repeat;
+}
+
+/* === Pseudo element === */
+@mixin pseudo( $content: '', $position: absolute, $display: inline-block ) {
+  content: $content;
+  position: $position;
+  display: $display;
+}
+
+/* === Media queries === */
+@mixin tablet {
+  @media screen and (min-width: $tablet * 1px) {
+    @content;
+  }
+}
+
+@mixin large {
+  @media screen and (min-width: $large * 1px) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media screen and (min-width: $desktop * 1px) {
+    @content;
+  }
+}
+
+/* === Fade in/Fade out animation === */
+@mixin fade($type) {
+  @if $type== "hide" {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 1s, opacity 1s;
+  } @else if $type== "show" {
+    visibility: visible;
+    opacity: 1;
+    transition: visibility 1s, opacity 1s;
+  }
+}
+
+/* === Fill btn on hover === 
+  Usage: @include background-transition(#4CAF50, #3F51B5);
+*/
+@mixin background-transition($initial, $hover, $inverted: false) {
+  background: linear-gradient(
+    90deg,
+    $hover 0%,
+    $hover 50%,
+    $initial 50%,
+    $initial 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+
+  background-position: right bottom;
+  @if $inverted {
+    background-position: left bottom;
+  }
+  transition: background-position 0.25s ease-out;
+
+  &:hover {
+    background-position: left bottom;
+    @if $inverted {
+      background-position: right bottom;
+    }
+  }
+}
