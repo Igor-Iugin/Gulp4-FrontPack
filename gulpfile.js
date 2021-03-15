@@ -10,9 +10,9 @@ const del          = require('del')
 
 /* HTML */
 const htmlmin      = require('gulp-htmlmin')
+
 /* JS */
 const webpack      = require('webpack-stream')
-
 
 /* CSS */
 const sass         = require('gulp-sass')
@@ -23,7 +23,7 @@ const autoprefixer = require('autoprefixer')
 const cssnano      = require('cssnano')
 
 /* Sprite */
-const svgSprite = require('gulp-svg-sprite')
+const svgSprite    = require('gulp-svg-sprite')
 
 /* Images */
 const imageMin     = require('gulp-imagemin')
