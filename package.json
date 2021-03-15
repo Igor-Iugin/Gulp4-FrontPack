@@ -1,0 +1,32 @@
+{
+  "name": "frontpack",
+  "version": "1.0.0",
+  "description": "Full functionality gulp pack for web developers.",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "browsersync-ssi": "^0.2.4",
+    "browser-sync": "^2.26.14"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IgorDejavu/Gulp4-FrontPack.git"
+  },
+  "keywords": [
+    "Gulp4",
+    "Gulp",
+    "gulp4",
+    "gulp",
+    "FrontPack",
+    "frontpack"
+  ],
+  "author": "IgorDejavu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IgorDejavu/Gulp4-FrontPack/issues"
+  },
+  "homepage": "https://github.com/IgorDejavu/Gulp4-FrontPack#readme"
+}
