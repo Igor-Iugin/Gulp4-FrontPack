@@ -1,11 +1,11 @@
 
-/* === Box === */
+// === Box ===
 @mixin box($width, $height: $width) {
   width: $width;
   height: $height;
 }
 
-/* === Font Face === */
+// === Font Face ===
 @mixin font($font-name, $path, $weight: normal, $style: normal) {
   @font-face {
     font-family: quote($font-name);
@@ -15,7 +15,7 @@
   }
 }
 
-/* === Font Size === */
+// === Font Size ===
 @mixin font-size($font-size, $line-height: normal, $letter-spacing: normal) {
   font-size: $font-size * 0.1rem;
 
@@ -32,19 +32,19 @@
   }
 }
 
-/* === Background === */
+// === Background ===
 @mixin bg($url, $position: center, $fit: cover, $repeat: no-repeat) {
   background: url('../images/' + $url) $position/$fit $repeat;
 }
 
-/* === Pseudo element === */
+// === Pseudo element ===
 @mixin pseudo( $content: '', $position: absolute, $display: inline-block ) {
   content: $content;
   position: $position;
   display: $display;
 }
 
-/* === Media queries === */
+// === Media queries ===
 @mixin tablet {
   @media screen and (min-width: $tablet * 1px) {
     @content;
@@ -63,7 +63,7 @@
   }
 }
 
-/* === Fade in/Fade out animation === */
+// === Fade in/Fade out animation ===
 @mixin fade($type) {
   @if $type== "hide" {
     visibility: hidden;
@@ -76,9 +76,9 @@
   }
 }
 
-/* === Fill btn on hover === 
-  Usage: @include background-transition(#4CAF50, #3F51B5);
-*/
+// === Fill btn on hover === 
+//   Usage: @include background-transition(#4CAF50, #3F51B5);
+
 @mixin background-transition($initial, $hover, $inverted: false) {
   background: linear-gradient(
     90deg,
