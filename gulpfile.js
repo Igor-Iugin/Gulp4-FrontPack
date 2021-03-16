@@ -147,10 +147,10 @@ function images() {
         pngQuant(),
       ]
     }))
-		.pipe(dest('dist/images'))
+		.pipe(dest('prod/images'))
 }
 
-//* Clean dist
+//* Clean production folder
 function clean() {
 	return del('prod', { force: true })
 }
@@ -166,7 +166,7 @@ function stylesMinify() {
 		.pipe(dest('prod/styles'))
 }
 
-//* HTML minify
+//* HTML minify (Unused)
 function htmlMinify() {
 	return src('prod/*.html')
 		.pipe(htmlmin({
@@ -182,6 +182,7 @@ exports.styles  = styles
 exports.scripts = scripts
 exports.images  = images
 exports.sprite  = sprite
-exports.minify  = series(stylesMinify, htmlMinify)
+exports.clean   = clean
+exports.minify  = stylesMinify
 exports.prod    = series(clean, moveFiles, html)
 exports.default = series(scripts, styles, parallel(browserSync, spy))
