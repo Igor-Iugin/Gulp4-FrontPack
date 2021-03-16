@@ -17,7 +17,6 @@ const webpack      = require('webpack-stream')
 /* CSS */
 const sass         = require('gulp-sass')
 const sassglob     = require('gulp-sass-glob')
-const normalize    = require('node-normalize-scss')
 const postcss      = require('gulp-postcss')
 const autoprefixer = require('autoprefixer')
 const cssnano      = require('cssnano')
@@ -44,11 +43,12 @@ function browserSync() {
 }
 
 //* Watch 
-function Watch() {
+function spy() {
+	const fileswatch   = 'html,woff2'
+
 	watch(['app/styles/**/*', '!app/styles/*.css'], { usePolling: true }, styles)
 	watch(['app/scripts/**/*.js', '!app/scripts/*.min.js'], { usePolling: true }, scripts)
-	// watch('app/images/**/*.{jpg,jpeg,png,webp,svg,gif}', { usePolling: true }, images)
-	watch(`app/**/*.{'html,htm,txt,json,md,woff2'}`, { usePolling: true }).on('change', server.reload)
+	watch(`app/**/*.{${fileswatch}}`, { usePolling: true }).on('change', server.reload)
 }
 
 
@@ -86,8 +86,10 @@ function scripts() {
 function styles() {
 	return src(['app/styles/scss/*.scss', '!app/styles/scss/**/_*.*'])
 		.pipe(sassglob())
-		.pipe(sass({ includePaths: normalize.includePaths }))
-		.pipe(postcss([autoprefixer({ overrideBrowserslist: ['last 3 versions'], grid: 'no-autoplace' })]))
+		.pipe(sass({ 
+			includePaths: require('scss-resets').includePaths
+		}))
+    .pipe(postcss([ autoprefixer({ overrideBrowserslist: ['last 3 versions'], grid: true }) ]))
 		.pipe(dest('app/styles'))
 		.pipe(server.stream())
 }
@@ -159,9 +161,7 @@ function clean() {
 //* Styles minify
 function stylesMinify() {
 	return src(['app/styles/*.css'])
-		.pipe(postcss({
-			cssnano()
-		}))
+		.pipe(cssnano())
 		.pipe(rename({ suffix: ".min" }))
 		.pipe(dest('prod/styles'))
 }
@@ -184,4 +184,4 @@ exports.images  = images
 exports.sprite  = sprite
 exports.minify  = series(stylesMinify, htmlMinify)
 exports.prod    = series(clean, moveFiles, html)
-exports.default = series(scripts, styles, parallel(browserSync, Watch))
+exports.default = series(scripts, styles, parallel(browserSync, spy))
