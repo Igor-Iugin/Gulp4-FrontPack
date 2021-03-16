@@ -161,7 +161,7 @@ function clean() {
 //* Styles minify
 function stylesMinify() {
 	return src(['app/styles/*.css'])
-		.pipe(cssnano())
+		.pipe(postcss([ cssnano({ preset: ['default', { discardComments: { removeAll: true } }] }) ]))
 		.pipe(rename({ suffix: ".min" }))
 		.pipe(dest('prod/styles'))
 }
