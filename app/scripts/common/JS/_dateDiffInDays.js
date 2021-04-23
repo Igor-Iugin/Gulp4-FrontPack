@@ -1,6 +1,6 @@
 /* 
-  Функция вычисления разницы дат в днях
- */
+#  Функция вычисления разницы дат в днях
+*/
 function dateDiffInDays(start, end) {
   const msPerDay = 1000 * 60 * 60 * 24
   const utc1 = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())
