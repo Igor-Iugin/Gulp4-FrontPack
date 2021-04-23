@@ -36,6 +36,7 @@ function browserSync() {
 			baseDir: 'app/',
 			middleware: bssi({ baseDir: 'app/', ext: '.html' })
 		},
+    browser: 'firefox',
 		ghostMode: { clicks: false },
 		notify: false,
 		online: true
@@ -47,7 +48,7 @@ function spy() {
 	const fileswatch   = 'html,woff2'
 
 	watch(['app/styles/**/*', '!app/styles/*.css'], { usePolling: true }, styles)
-	watch(['app/scripts/**/*.js', '!app/scripts/*.min.js'], { usePolling: true }, scripts)
+	watch(['app/scripts/**/*.js', '!app/scripts/*.min.js', '!app/scripts/_*.js'], { usePolling: true }, scripts)
 	watch(`app/**/*.{${fileswatch}}`, { usePolling: true }).on('change', server.reload)
 }
 
@@ -56,7 +57,7 @@ function spy() {
 
 //* Scripts
 function scripts() {
-	return src(['app/scripts/*.js', '!app/scripts/*.min.js'])
+	return src(['app/scripts/*.js', '!app/scripts/*.min.js', '!app/scripts/_*.js'])
 		.pipe(webpack({
 			mode: 'production',
 			watch: true,
@@ -110,6 +111,7 @@ function sprite() {
 				symbol: true
 			}
 		}))
+		.pipe(dest('app/images'))
 }
 
 
