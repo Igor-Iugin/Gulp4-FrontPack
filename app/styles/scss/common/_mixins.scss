@@ -15,20 +15,15 @@
   }
 }
 
-// === Font Size ===
-@mixin font-size($font-size, $line-height: normal, $letter-spacing: normal) {
-  font-size: $font-size * 0.1rem;
-
-  @if $line-height==normal {
-    line-height: normal;
-  } @else {
-    line-height: $line-height / $font-size;
+// === Adaptive Font ===
+@mixin adaptive-font($pcSize, $mobSize, $maxWidth) {
+  $addSize: $pcSize - $mobSize;
+  $addMobSize: $addSize + $addSize * 0.7;
+  @media (max-width: 767px) {
+    font-size: calc(#{$mobSize + px} + #{$addMobSize} * ((100vw - 320px) / #{$maxWidth}));
   }
-
-  @if $letter-spacing==normal {
-    letter-spacing: normal;
-  } @else {
-    letter-spacing: #{$letter-spacing / $font-size}em;
+  @media (min-width: 767px) {
+    font-size: calc(#{$mobSize + px} + #{$addSize} * (100vw / #{$maxWidth}));
   }
 }
 
@@ -68,11 +63,11 @@
   @if $type== "hide" {
     visibility: hidden;
     opacity: 0;
-    transition: visibility 1s, opacity 1s;
+    transition: visibility .6s, opacity .6s;
   } @else if $type== "show" {
     visibility: visible;
     opacity: 1;
-    transition: visibility 1s, opacity 1s;
+    transition: visibility .6s, opacity .6s;
   }
 }
 
