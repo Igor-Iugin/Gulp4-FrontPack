@@ -96,6 +96,7 @@ function styles() {
 }
 
 //* SVG Sprite
+//! Доработать
 function sprite() {
 	return src('app/images/**/sprite/*.svg')
 		.pipe(plumber())
@@ -164,7 +165,6 @@ function clean() {
 function stylesMinify() {
 	return src(['app/styles/*.css'])
 		.pipe(postcss([ cssnano({ preset: ['default', { discardComments: { removeAll: true } }] }) ]))
-		.pipe(rename({ suffix: ".min" }))
 		.pipe(dest('prod/styles'))
 }
 
@@ -172,10 +172,9 @@ function stylesMinify() {
 function htmlMinify() {
 	return src('prod/*.html')
 		.pipe(htmlmin({
-			collapseWhitespace: true,
+			collapseWhitespace: false,
 			removeComments: true
 		}))
-		.pipe(rename({ suffix: ".min" }))
 		.pipe(dest('prod'))
 }
 
@@ -185,6 +184,6 @@ exports.scripts = scripts
 exports.images  = images
 exports.sprite  = sprite
 exports.clean   = clean
-exports.minify  = stylesMinify
-exports.prod    = series(clean, moveFiles, html)
+exports.minify  = parallel(stylesMinify, htmlMinify)
+exports.prod    = series(clean, moveFiles, html, parallel(stylesMinify, htmlMinify))
 exports.default = series(scripts, styles, parallel(browserSync, spy))
