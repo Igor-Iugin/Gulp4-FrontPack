@@ -1,5 +1,5 @@
 /* 
-#  Функция вычисления разницы дат в днях
+#  Вычисление разницы дат в днях
 */
 function dateDiffInDays(start, end) {
   const msPerDay = 1000 * 60 * 60 * 24
