@@ -4,7 +4,7 @@ const { src, dest, parallel, series, watch } = require('gulp')
 const server       = require('browser-sync').create()
 const bssi         = require('browsersync-ssi')
 const ssi          = require('ssi')
-const rename       = require('gulp-rename')
+const squoosh      = require('gulp-squoosh')
 const plumber 		 = require('gulp-plumber')
 const del          = require('del')
 
@@ -136,18 +136,13 @@ function moveFiles() {
 
 //* Images
 function images() {
-	return src(['app/images/**/*', '!app/images/**/sprite.svg'])
+	return src(['app/images/**/*.{png, jpeg}', '!app/images/**/sprite.svg'])
 		.pipe(plumber())
-		.pipe(imageMin({
-      progressive: true,
-      svgoPlugins: [
-        { removeViewBox: false },
-        { cleanupIDs: false },
-      ],
-      use: [
-        pngQuant(),
-      ]
-    }))
+		.pipe(squoosh({
+			encodeOptions: {
+				webp: {}
+			}
+		}))
 		.pipe(dest('build/images'))
 }
 
