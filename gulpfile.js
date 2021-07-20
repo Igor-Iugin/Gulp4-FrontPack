@@ -57,7 +57,7 @@ function spy() {
 
 //* Scripts
 function scripts() {
-	return src(['app/scripts/*.js', '!app/scripts/*.min.js', '!app/scripts/_*.js'])
+	return src(['app/scripts/*.js', '!app/scripts/_*.js'])
 		.pipe(webpack({
 			mode: 'production',
 			watch: true,
@@ -78,9 +78,7 @@ function scripts() {
 		})).on('error', function handleError() {
 			this.emit('end')
 		})
-		.pipe(rename({ suffix: ".min" }))
-		.pipe(dest('app/scripts'))
-		.pipe(server.stream())
+		.pipe(dest('build/scripts'))
 }
 
 //* Styles
@@ -98,7 +96,7 @@ function styles() {
 //* SVG Sprite
 //! Доработать
 function sprite() {
-	return src('app/images/**/sprite/*.svg')
+	return src('app/images/sprite/*.svg')
 		.pipe(plumber())
 		.pipe(svgSprite({
 			mode: {
@@ -120,9 +118,9 @@ function sprite() {
 
 //* HTML
 async function html() {
-	let includes = new ssi('app/', 'prod/', '/**/*.html')
+	let includes = new ssi('app/', 'build/', '/**/*.html')
 	includes.compile()
-	del('prod/templates', { force: true })
+	del('build/templates', { force: true })
 }
 
 //* Move files
@@ -133,12 +131,12 @@ function moveFiles() {
 		'!app/images/**/sprite/*', /* ??? */
 		'app/fonts/**/*'
 	], { base: 'app/' })
-	.pipe(dest('prod'))
+	.pipe(dest('build'))
 }
 
 //* Images
 function images() {
-	return src(['app/images/**/*', '!app/images/**/sprite/*'])
+	return src(['app/images/**/*', '!app/images/**/sprite.svg'])
 		.pipe(plumber())
 		.pipe(imageMin({
       progressive: true,
@@ -150,12 +148,12 @@ function images() {
         pngQuant(),
       ]
     }))
-		.pipe(dest('prod/images'))
+		.pipe(dest('build/images'))
 }
 
 //* Clean production folder
 function clean() {
-	return del('prod', { force: true })
+	return del('build', { force: true })
 }
 
 
@@ -164,11 +162,11 @@ function clean() {
 //* Styles minify
 function stylesMinify() {
 	return src(['app/styles/*.css'])
-		.pipe(postcss([ cssnano({ preset: ['default', { discardComments: { removeAll: true } }] }) ]))
+		.pipe(postcss([ cssnano({ preset: ['default', {discardComments: { removeAll: true }}]})]))
 		.pipe(dest('prod/styles'))
 }
 
-//* HTML minify (Unused)
+//* HTML minify
 function htmlMinify() {
 	return src('prod/*.html')
 		.pipe(htmlmin({
@@ -184,6 +182,6 @@ exports.scripts = scripts
 exports.images  = images
 exports.sprite  = sprite
 exports.clean   = clean
-exports.minify  = parallel(stylesMinify, htmlMinify)
-exports.prod    = series(clean, moveFiles, html, parallel(stylesMinify, htmlMinify))
-exports.default = series(scripts, styles, parallel(browserSync, spy))
+exports.minify  = parallel(stylesMinify, scripts, htmlMinify)
+exports.build   = series(clean, moveFiles, html, parallel(stylesMinify, scripts, htmlMinify))
+exports.default = series(styles, parallel(browserSync, spy))
