@@ -6,12 +6,13 @@
 }
 
 // === Font Face ===
-@mixin font($font-name, $path, $weight: normal, $style: normal) {
+@mixin font($font-name, $file-name, $weight: normal, $style: normal) {
   @font-face {
     font-family: quote($font-name);
-    src: url($path+".woff2") format("woff2");
-    font-weight: $weight;
     font-style: $style;
+    font-weight: $weight;
+    font-display: swap;
+    src: local($font-name), local($file-name), url("../fonts/"+$file-name+".woff2") format("woff2");
   }
 }
 
