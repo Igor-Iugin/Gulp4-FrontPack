@@ -12,7 +12,7 @@
     font-style: $style;
     font-weight: $weight;
     font-display: swap;
-    src: local(quote($font-name)), local(quote($font-name)), url("../fonts/"+$file-name+".woff2") format("woff2");
+    src: local(quote($font-name)), local($file-name), url('../fonts/'+$file-name+'.woff2') format('woff2');
   }
 }
 
