@@ -142,21 +142,21 @@ function clean() {
 
 //# === Minify ===
 
-//* Styles minify
+//* CSS minify
 function stylesMinify() {
 	return src(['source/styles/*.css'])
 		.pipe(postcss([ cssnano({ preset: ['default', {discardComments: { removeAll: true }}]})]))
-		.pipe(dest('prod/styles'))
+		.pipe(dest('build/styles'))
 }
 
 //* HTML minify
 function htmlMinify() {
-	return src('prod/*.html')
+	return src('build/*.html')
 		.pipe(htmlmin({
-			collapseWhitespace: false,
+			collapseWhitespace: true,
 			removeComments: true
 		}))
-		.pipe(dest('prod'))
+		.pipe(dest('build'))
 }
 
 
