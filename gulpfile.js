@@ -16,7 +16,6 @@ const webpack      = require('webpack-stream')
 
 /* CSS */
 const sass         = require('gulp-sass')
-// const sassglob     = require('gulp-sass-glob')
 const postcss      = require('gulp-postcss')
 const autoprefixer = require('autoprefixer')
 const cssnano      = require('cssnano')
@@ -43,7 +42,7 @@ function browserSync() {
 	})
 }
 
-//* Watch 
+//* Watch
 function watcher() {
 	const fileswatch   = 'html,woff2'
 
@@ -53,7 +52,7 @@ function watcher() {
 }
 
 
-//# === Development === 
+//# === Development ===
 
 //* Scripts
 function scripts() {
@@ -119,7 +118,7 @@ function sprite() {
 }
 
 
-//# === Production === 
+//# === Production ===
 
 //* HTML
 async function html() {

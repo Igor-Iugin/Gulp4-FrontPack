@@ -9,6 +9,7 @@
     "gulp": "^4.0.2"
   },
   "devDependencies": {
+    "@htmlacademy/editorconfig-cli": "1.x",
     "autoprefixer": "^9.0.0",
     "cssnano": "^4.1.10",
     "del": "^6.0.0",
@@ -24,11 +25,25 @@
     "imagemin-pngquant": "^9.0.2",
     "scss-resets": "^0.5.2",
     "ssi": "^0.3.0",
+    "stylelint-config-htmlacademy": "0.1.4",
     "webpack-stream": "^6.1.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "browserslist": [
+    "last 2 versions",
+    "not dead",
+    "not ie <= 11"
+  ],
+  "editorconfig-cli": [
+    "*.json",
+    "*.js",
+    "source/*.html",
+    "source/js/**/*.js",
+    "source/img/**/*.svg",
+    "source/sass/**/*.scss"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/IgorDejavu/Gulp4-FrontPack.git"
@@ -36,10 +51,7 @@
   "keywords": [
     "Gulp4",
     "Gulp",
-    "gulp4",
-    "gulp",
-    "FrontPack",
-    "frontpack"
+    "FrontPack"
   ],
   "author": "IgorDejavu",
   "license": "ISC",
