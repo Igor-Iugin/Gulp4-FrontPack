@@ -11,5 +11,5 @@ npm-debug.*
 source/css/*.css
 source/css/*.map
 Thumbs.db
-build
+build/
 /**/package-lock.json

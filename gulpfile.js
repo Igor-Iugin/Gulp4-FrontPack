@@ -7,6 +7,7 @@ const ssi          = require('ssi')
 const plumber 		 = require('gulp-plumber')
 const del          = require('del')
 const sourcemaps   = require('gulp-sourcemaps')
+const rename   = require('gulp-rename')
 
 /* HTML */
 const htmlmin      = require('gulp-htmlmin')
@@ -21,7 +22,7 @@ const autoprefixer = require('autoprefixer')
 const cssnano      = require('cssnano')
 
 /* Sprite */
-const svgSprite    = require('gulp-svg-sprite')
+const svgStore    = require('gulp-svgstore')
 
 /* Images */
 const squoosh      = require('gulp-squoosh')
@@ -93,28 +94,12 @@ function styles() {
 		.pipe(server.stream())
 }
 
-//* SVG Sprite
-//! Доработать
+//* Sprite
 function sprite() {
 	return src('source/images/icons/*.svg')
-		.pipe(plumber())
-		.pipe(svgSprite({
-			mode: {
-				symbol: true
-			},
-			shape: {
-				transform: [{
-					svgo: {
-						plugins: [{
-							removeAttrs: {
-							attrs: ['fill', 'stroke', 'width', 'height']
-							}
-						}]
-					}
-				}]
-			}
-		}))
-		.pipe(dest('source/images'))
+		.pipe(svgStore({ inlineSvg: true }))
+		.pipe(rename('sprite.svg'))
+		.pipe(dest('source/images/icons'))
 }
 
 
