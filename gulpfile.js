@@ -6,6 +6,7 @@ const bssi         = require('browsersync-ssi')
 const ssi          = require('ssi')
 const plumber 		 = require('gulp-plumber')
 const del          = require('del')
+const sourcemaps   = require('gulp-sourcemaps')
 
 /* HTML */
 const htmlmin      = require('gulp-htmlmin')
@@ -15,7 +16,7 @@ const webpack      = require('webpack-stream')
 
 /* CSS */
 const sass         = require('gulp-sass')
-const sassglob     = require('gulp-sass-glob')
+// const sassglob     = require('gulp-sass-glob')
 const postcss      = require('gulp-postcss')
 const autoprefixer = require('autoprefixer')
 const cssnano      = require('cssnano')
@@ -31,23 +32,24 @@ const squoosh      = require('gulp-squoosh')
 function browserSync() {
 	server.init({
 		server: {
-			baseDir: 'app/',
-			middleware: bssi({ baseDir: 'app/', ext: '.html' })
+			baseDir: 'source/',
+			middleware: bssi({ baseDir: 'source/', ext: '.html' })
 		},
     browser: 'firefox',
 		ghostMode: { clicks: false },
+		cors: true,
 		notify: false,
 		online: true
 	})
 }
 
 //* Watch 
-function spy() {
+function watcher() {
 	const fileswatch   = 'html,woff2'
 
-	watch(['app/styles/**/*', '!app/styles/*.css'], { usePolling: true }, styles)
-	watch(['app/scripts/**/*.js', '!app/scripts/*.min.js', '!app/scripts/_*.js'], { usePolling: true }, scripts)
-	watch(`app/**/*.{${fileswatch}}`, { usePolling: true }).on('change', server.reload)
+	watch('source/sass/**/*.scss', { usePolling: true }, styles)
+	watch(['source/scripts/**/*.js', '!source/scripts/*.min.js', '!source/scripts/_*.js'], { usePolling: true }, scripts)
+	watch(`source/**/*.{${fileswatch}}`, { usePolling: true }).on('change', server.reload)
 }
 
 
@@ -55,7 +57,7 @@ function spy() {
 
 //* Scripts
 function scripts() {
-	return src(['app/scripts/*.js', '!app/scripts/_*.js'])
+	return src(['source/scripts/*.js', '!source/scripts/_*.js'])
 		.pipe(webpack({
 			mode: 'production',
 			watch: true,
@@ -81,20 +83,21 @@ function scripts() {
 
 //* Styles
 function styles() {
-	return src(['app/styles/scss/*.scss', '!app/styles/scss/**/_*.*'])
-		.pipe(sassglob())
-		.pipe(sass({ 
+	return src('source/sass/style.scss')
+		.pipe(sourcemaps.init())
+		.pipe(sass({
 			includePaths: require('scss-resets').includePaths
 		}))
-    .pipe(postcss([ autoprefixer({ overrideBrowserslist: ['last 3 versions'], grid: true }) ]))
-		.pipe(dest('app/styles'))
+    .pipe(postcss([autoprefixer()]))
+		.pipe(sourcemaps.write('.'))
+		.pipe(dest('source/css'))
 		.pipe(server.stream())
 }
 
 //* SVG Sprite
 //! Доработать
 function sprite() {
-	return src('app/images/icons/*.svg')
+	return src('source/images/icons/*.svg')
 		.pipe(plumber())
 		.pipe(svgSprite({
 			mode: {
@@ -112,7 +115,7 @@ function sprite() {
 				}]
 			}
 		}))
-		.pipe(dest('app/images'))
+		.pipe(dest('source/images'))
 }
 
 
@@ -120,7 +123,7 @@ function sprite() {
 
 //* HTML
 async function html() {
-	let includes = new ssi('app/', 'build/', '/**/*.html')
+	let includes = new ssi('source/', 'build/', '/**/*.html')
 	includes.compile()
 	del('build/templates', { force: true })
 }
@@ -128,17 +131,16 @@ async function html() {
 //* Move files
 function moveFiles() {
 	return src([
-		'{app/scripts,app/styles}/*.{min.js,css}',
-		'app/images/**/*.*',
-		'!app/images/**/sprite/*', /* ??? */
-		'app/fonts/**/*'
-	], { base: 'app/' })
+		'{source/scripts,source/css}/*.{min.js,css}',
+		'source/images/**/*.*',
+		'source/fonts/**/*'
+	], { base: 'source/' })
 	.pipe(dest('build'))
 }
 
 //* Images
 function images() {
-	return src(['app/images/**/*.{png, jpeg}', '!app/images/**/sprite.svg'])
+	return src(['source/images/**/*.{png, jpeg}', '!source/images/**/sprite.svg'])
 		.pipe(plumber())
 		.pipe(squoosh({
 			encodeOptions: {
@@ -158,7 +160,7 @@ function clean() {
 
 //* Styles minify
 function stylesMinify() {
-	return src(['app/styles/*.css'])
+	return src(['source/styles/*.css'])
 		.pipe(postcss([ cssnano({ preset: ['default', {discardComments: { removeAll: true }}]})]))
 		.pipe(dest('prod/styles'))
 }
@@ -181,4 +183,4 @@ exports.sprite  = sprite
 exports.clean   = clean
 exports.minify  = parallel(stylesMinify, scripts, htmlMinify)
 exports.build   = series(clean, moveFiles, html, parallel(stylesMinify, scripts, htmlMinify))
-exports.default = series(styles, parallel(browserSync, spy))
+exports.default = series(styles, parallel(browserSync, watcher))
