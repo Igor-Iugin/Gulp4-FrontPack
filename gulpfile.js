@@ -4,7 +4,6 @@ const { src, dest, parallel, series, watch } = require('gulp')
 const server       = require('browser-sync').create()
 const bssi         = require('browsersync-ssi')
 const ssi          = require('ssi')
-const squoosh      = require('gulp-squoosh')
 const plumber 		 = require('gulp-plumber')
 const del          = require('del')
 
@@ -25,8 +24,7 @@ const cssnano      = require('cssnano')
 const svgSprite    = require('gulp-svg-sprite')
 
 /* Images */
-const imageMin     = require('gulp-imagemin')
-const pngQuant 		 = require('imagemin-pngquant')
+const squoosh      = require('gulp-squoosh')
 
 
 //* Server
@@ -96,18 +94,22 @@ function styles() {
 //* SVG Sprite
 //! Доработать
 function sprite() {
-	return src('app/images/sprite/*.svg')
+	return src('app/images/icons/*.svg')
 		.pipe(plumber())
 		.pipe(svgSprite({
 			mode: {
-				css: {
-					bust: false,
-					sprite: '../sprite.svg',
-					render: {
-						scss: true
-					}
-				},
 				symbol: true
+			},
+			shape: {
+				transform: [{
+					svgo: {
+						plugins: [{
+							removeAttrs: {
+							attrs: ['fill', 'stroke', 'width', 'height']
+							}
+						}]
+					}
+				}]
 			}
 		}))
 		.pipe(dest('app/images'))
