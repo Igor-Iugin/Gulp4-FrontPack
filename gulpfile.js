@@ -100,25 +100,29 @@ function styles() {
 //* Sprite
 function sprite() {
 	return src('source/images/icons/*.svg')
-    // minify svg
+		.pipe(svgStore({ inlineSvg: true }))
+		.pipe(rename('sprite.svg'))
+		.pipe(dest('source/images/icons'))
+}
+
+function svgOptim() {
+	return src('source/images/icons/*.svg')
     .pipe(svgmin({
       js2svg: {
-        pretty: true
+        pretty: true,
+        indent: 2
       }
     }))
-    // remove all fill and style declarations in out shapes
 		.pipe(cheerio({
 			run: ($) => {
 				$('[fill]').removeAttr('fill');
 				$('[style]').removeAttr('style');
+				$('[width]').removeAttr('width');
+				$('[height]').removeAttr('height');
 			},
 			parserOptions: { xmlMode: true }
 		}))
-    // cheerio plugin create unnecessary string '>', so replace it.
 		.pipe(replace('&gt;', '>'))
-		// build svg sprite
-		.pipe(svgStore({ inlineSvg: true }))
-		.pipe(rename('sprite.svg'))
 		.pipe(dest('source/images/icons'))
 }
 
@@ -181,9 +185,9 @@ function htmlMinify() {
 
 
 exports.styles  = styles
-exports.scripts = scripts
+exports.sprite  = series(svgOptim, sprite)
 exports.images  = images
-exports.sprite  = sprite
+exports.scripts = scripts
 exports.clean   = clean
 exports.minify  = parallel(stylesMinify, scripts, htmlMinify)
 exports.build   = series(clean, moveFiles, html, parallel(stylesMinify, scripts, htmlMinify))
