@@ -23,6 +23,9 @@ const cssnano      = require('cssnano')
 
 /* Sprite */
 const svgStore    = require('gulp-svgstore')
+const svgmin    = require('gulp-svgmin')
+const cheerio     = require('gulp-cheerio')
+const replace     = require('gulp-replace')
 
 /* Images */
 const squoosh      = require('gulp-squoosh')
@@ -97,6 +100,23 @@ function styles() {
 //* Sprite
 function sprite() {
 	return src('source/images/icons/*.svg')
+    // minify svg
+    .pipe(svgmin({
+      js2svg: {
+        pretty: true
+      }
+    }))
+    // remove all fill and style declarations in out shapes
+		.pipe(cheerio({
+			run: ($) => {
+				$('[fill]').removeAttr('fill');
+				$('[style]').removeAttr('style');
+			},
+			parserOptions: { xmlMode: true }
+		}))
+    // cheerio plugin create unnecessary string '>', so replace it.
+		.pipe(replace('&gt;', '>'))
+		// build svg sprite
 		.pipe(svgStore({ inlineSvg: true }))
 		.pipe(rename('sprite.svg'))
 		.pipe(dest('source/images/icons'))
