@@ -23,6 +23,9 @@ const cssnano      = require('cssnano')
 
 /* Sprite */
 const svgStore    = require('gulp-svgstore')
+const svgmin    = require('gulp-svgmin')
+const cheerio     = require('gulp-cheerio')
+const replace     = require('gulp-replace')
 
 /* Images */
 const squoosh      = require('gulp-squoosh')
@@ -102,6 +105,27 @@ function sprite() {
 		.pipe(dest('source/images/icons'))
 }
 
+function svgOptim() {
+	return src('source/images/icons/*.svg')
+    .pipe(svgmin({
+      js2svg: {
+        pretty: true,
+        indent: 2
+      }
+    }))
+		.pipe(cheerio({
+			run: ($) => {
+				$('[fill]').removeAttr('fill');
+				$('[style]').removeAttr('style');
+				$('[width]').removeAttr('width');
+				$('[height]').removeAttr('height');
+			},
+			parserOptions: { xmlMode: true }
+		}))
+		.pipe(replace('&gt;', '>'))
+		.pipe(dest('source/images/icons'))
+}
+
 
 //# === Production ===
 
@@ -161,9 +185,9 @@ function htmlMinify() {
 
 
 exports.styles  = styles
-exports.scripts = scripts
+exports.sprite  = series(svgOptim, sprite)
 exports.images  = images
-exports.sprite  = sprite
+exports.scripts = scripts
 exports.clean   = clean
 exports.minify  = parallel(stylesMinify, scripts, htmlMinify)
 exports.build   = series(clean, moveFiles, html, parallel(stylesMinify, scripts, htmlMinify))
