@@ -1,6 +1,6 @@
 {
   "name": "frontpack",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Full functionality gulp pack for web developers.",
   "main": "gulpfile.js",
   "dependencies": {
@@ -28,9 +28,6 @@
     "ssi": "^0.3.0",
     "stylelint-config-htmlacademy": "0.1.4",
     "webpack-stream": "^6.1.2"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "browserslist": [
     "last 2 versions",
