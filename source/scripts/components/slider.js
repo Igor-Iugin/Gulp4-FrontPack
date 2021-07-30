@@ -1,1 +1,0 @@
-const slider = new Swiper()

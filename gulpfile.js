@@ -14,8 +14,8 @@ const htmlmin      = require('gulp-htmlmin')
 
 /* JS */
 const babel        = require('gulp-babel')
-const concat       = require('gulp-concat')
-const uglify       = require('gulp-uglify')
+const webpack      = require('webpack')
+const wpStream     = require('webpack-stream')
 
 /* CSS */
 const sass         = require('gulp-sass')
@@ -53,6 +53,7 @@ function watcher() {
 	const fileswatch   = 'html,woff2'
 
 	watch('source/sass/**/*.scss', { usePolling: true }, styles)
+	watch(['source/scripts/**/*.js', '!source/scripts/bundle.min.js'], scripts).on('change', server.reload)
 	watch(`source/**/*.{${fileswatch}}`, { usePolling: true }).on('change', server.reload)
 }
 
@@ -119,20 +120,23 @@ async function html() {
 
 //* Scripts
 function scripts() {
-  src('source/scripts/vendor.js')
-    .pipe(babel({ presets: ['@babel/preset-env'] }))
-    .pipe(concat('vendor.js'))
-    .pipe(uglify())
+  src('source/scripts/**/*.js')
+    .pipe(wpStream({
+      watch: true,
+      mode: 'production',
+      output: {
+        filename: 'bundle.min.js'
+      },
+      module: {
+        rules: [{
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
+        }]
+      }
+    }, webpack))
     .pipe(dest('build/scripts'))
-  src('source/scripts/global.js')
-    .pipe(babel({ presets: ['@babel/preset-env'] }))
-    .pipe(concat('global.js'))
-    .pipe(uglify())
-    .pipe(dest('build/scripts'))
-  return src('source/scripts/components/**/*.js')
-		.pipe(babel({ presets: ['@babel/preset-env'] }))
-    .pipe(uglify())
-    .pipe(dest('build/scripts/components'))
 }
 
 //* Move files
@@ -140,6 +144,7 @@ function moveFiles() {
 	return src([
 		'source/css/*.css',
 		'source/images/**/*.*',
+		'source/scripts/bundle.min.js',
 		'source/fonts/**/*'
 	], { base: 'source/' })
 	.pipe(dest('build'))
@@ -191,5 +196,5 @@ exports.images  = images
 exports.scripts = scripts
 exports.clean   = clean
 exports.minify  = parallel(stylesMinify, scripts, htmlMinify)
-exports.build   = series(clean, moveFiles, html, parallel(stylesMinify, scripts, htmlMinify))
-exports.default = series(styles, parallel(browserSync, watcher))
+exports.build   = series(clean, moveFiles, html, parallel(stylesMinify, htmlMinify))
+exports.default = series(styles, scripts, parallel(browserSync, watcher))
