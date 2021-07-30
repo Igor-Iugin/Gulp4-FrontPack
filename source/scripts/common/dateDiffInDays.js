@@ -1,4 +1,4 @@
-/* 
+/*
 #  Вычисление разницы дат в днях
 */
 function dateDiffInDays(start, end) {
@@ -13,3 +13,5 @@ function dateDiffInDays(start, end) {
     mounths: Math.floor((days - years * 365)/30)
   }
 }
+
+export default dateDiffInDays

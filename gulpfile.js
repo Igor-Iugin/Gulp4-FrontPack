@@ -7,13 +7,15 @@ const ssi          = require('ssi')
 const plumber 		 = require('gulp-plumber')
 const del          = require('del')
 const sourcemaps   = require('gulp-sourcemaps')
-const rename   = require('gulp-rename')
+const rename       = require('gulp-rename')
 
 /* HTML */
 const htmlmin      = require('gulp-htmlmin')
 
 /* JS */
-const webpack      = require('webpack-stream')
+const babel        = require('gulp-babel')
+const concat       = require('gulp-concat')
+const uglify       = require('gulp-uglify')
 
 /* CSS */
 const sass         = require('gulp-sass')
@@ -22,10 +24,10 @@ const autoprefixer = require('autoprefixer')
 const cssnano      = require('cssnano')
 
 /* Sprite */
-const svgStore    = require('gulp-svgstore')
-const svgmin    = require('gulp-svgmin')
-const cheerio     = require('gulp-cheerio')
-const replace     = require('gulp-replace')
+const svgStore     = require('gulp-svgstore')
+const svgmin       = require('gulp-svgmin')
+const cheerio      = require('gulp-cheerio')
+const replace      = require('gulp-replace')
 
 /* Images */
 const squoosh      = require('gulp-squoosh')
@@ -51,38 +53,11 @@ function watcher() {
 	const fileswatch   = 'html,woff2'
 
 	watch('source/sass/**/*.scss', { usePolling: true }, styles)
-	watch(['source/scripts/**/*.js', '!source/scripts/*.min.js', '!source/scripts/_*.js'], { usePolling: true }, scripts)
 	watch(`source/**/*.{${fileswatch}}`, { usePolling: true }).on('change', server.reload)
 }
 
 
 //# === Development ===
-
-//* Scripts
-function scripts() {
-	return src(['source/scripts/*.js', '!source/scripts/_*.js'])
-		.pipe(webpack({
-			mode: 'production',
-			watch: true,
-			performance: { hints: false },
-			module: {
-				rules: [
-					{
-						test: /\.(js)$/,
-						exclude: /(node_modules)/,
-						loader: 'babel-loader',
-						query: {
-							presets: ['@babel/env'],
-							plugins: ['babel-plugin-root-import']
-						}
-					}
-				]
-			}
-		})).on('error', function handleError() {
-			this.emit('end')
-		})
-		.pipe(dest('build/scripts'))
-}
 
 //* Styles
 function styles() {
@@ -142,10 +117,28 @@ async function html() {
 	del('build/templates', { force: true })
 }
 
+//* Scripts
+function scripts() {
+  src('source/scripts/vendor.js')
+    .pipe(babel({ presets: ['@babel/preset-env'] }))
+    .pipe(concat('vendor.js'))
+    .pipe(uglify())
+    .pipe(dest('build/scripts'))
+  src('source/scripts/global.js')
+    .pipe(babel({ presets: ['@babel/preset-env'] }))
+    .pipe(concat('global.js'))
+    .pipe(uglify())
+    .pipe(dest('build/scripts'))
+  return src('source/scripts/components/**/*.js')
+		.pipe(babel({ presets: ['@babel/preset-env'] }))
+    .pipe(uglify())
+    .pipe(dest('build/scripts/components'))
+}
+
 //* Move files
 function moveFiles() {
 	return src([
-		'{source/scripts,source/css}/*.{min.js,css}',
+		'source/css/*.css',
 		'source/images/**/*.*',
 		'source/fonts/**/*'
 	], { base: 'source/' })
