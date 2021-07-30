@@ -7,13 +7,15 @@ const ssi          = require('ssi')
 const plumber 		 = require('gulp-plumber')
 const del          = require('del')
 const sourcemaps   = require('gulp-sourcemaps')
-const rename   = require('gulp-rename')
+const rename       = require('gulp-rename')
 
 /* HTML */
 const htmlmin      = require('gulp-htmlmin')
 
 /* JS */
-const webpack      = require('webpack-stream')
+const babel        = require('gulp-babel')
+const webpack      = require('webpack')
+const wpStream     = require('webpack-stream')
 
 /* CSS */
 const sass         = require('gulp-sass')
@@ -22,10 +24,10 @@ const autoprefixer = require('autoprefixer')
 const cssnano      = require('cssnano')
 
 /* Sprite */
-const svgStore    = require('gulp-svgstore')
-const svgmin    = require('gulp-svgmin')
-const cheerio     = require('gulp-cheerio')
-const replace     = require('gulp-replace')
+const svgStore     = require('gulp-svgstore')
+const svgmin       = require('gulp-svgmin')
+const cheerio      = require('gulp-cheerio')
+const replace      = require('gulp-replace')
 
 /* Images */
 const squoosh      = require('gulp-squoosh')
@@ -51,38 +53,12 @@ function watcher() {
 	const fileswatch   = 'html,woff2'
 
 	watch('source/sass/**/*.scss', { usePolling: true }, styles)
-	watch(['source/scripts/**/*.js', '!source/scripts/*.min.js', '!source/scripts/_*.js'], { usePolling: true }, scripts)
+	watch(['source/scripts/**/*.js', '!source/scripts/bundle.min.js'], scripts).on('change', server.reload)
 	watch(`source/**/*.{${fileswatch}}`, { usePolling: true }).on('change', server.reload)
 }
 
 
 //# === Development ===
-
-//* Scripts
-function scripts() {
-	return src(['source/scripts/*.js', '!source/scripts/_*.js'])
-		.pipe(webpack({
-			mode: 'production',
-			watch: true,
-			performance: { hints: false },
-			module: {
-				rules: [
-					{
-						test: /\.(js)$/,
-						exclude: /(node_modules)/,
-						loader: 'babel-loader',
-						query: {
-							presets: ['@babel/env'],
-							plugins: ['babel-plugin-root-import']
-						}
-					}
-				]
-			}
-		})).on('error', function handleError() {
-			this.emit('end')
-		})
-		.pipe(dest('build/scripts'))
-}
 
 //* Styles
 function styles() {
@@ -111,7 +87,13 @@ function svgOptim() {
       js2svg: {
         pretty: true,
         indent: 2
-      }
+      },
+      plugins: [
+        {
+          name: 'removeViewBox',
+          active: false
+        }
+      ]
     }))
 		.pipe(cheerio({
 			run: ($) => {
@@ -136,11 +118,33 @@ async function html() {
 	del('build/templates', { force: true })
 }
 
+//* Scripts
+function scripts() {
+  src('source/scripts/**/*.js')
+    .pipe(wpStream({
+      watch: true,
+      mode: 'production',
+      output: {
+        filename: 'bundle.min.js'
+      },
+      module: {
+        rules: [{
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
+        }]
+      }
+    }, webpack))
+    .pipe(dest('build/scripts'))
+}
+
 //* Move files
 function moveFiles() {
 	return src([
-		'{source/scripts,source/css}/*.{min.js,css}',
+		'source/css/*.css',
 		'source/images/**/*.*',
+		'source/scripts/bundle.min.js',
 		'source/fonts/**/*'
 	], { base: 'source/' })
 	.pipe(dest('build'))
@@ -185,10 +189,12 @@ function htmlMinify() {
 
 
 exports.styles  = styles
-exports.sprite  = series(svgOptim, sprite)
+exports.spriter = series(svgOptim, sprite)
+exports.sprite  = sprite
+exports.svgo    = svgOptim
 exports.images  = images
 exports.scripts = scripts
 exports.clean   = clean
 exports.minify  = parallel(stylesMinify, scripts, htmlMinify)
-exports.build   = series(clean, moveFiles, html, parallel(stylesMinify, scripts, htmlMinify))
-exports.default = series(styles, parallel(browserSync, watcher))
+exports.build   = series(clean, moveFiles, html, parallel(stylesMinify, htmlMinify))
+exports.default = series(styles, scripts, parallel(browserSync, watcher))
