@@ -136,7 +136,7 @@ function scripts() {
         }]
       }
     }, webpack))
-    .pipe(dest('build/scripts'))
+    .pipe(dest('source/scripts'))
 }
 
 //* Move files
