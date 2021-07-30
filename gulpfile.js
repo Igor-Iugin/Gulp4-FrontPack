@@ -111,7 +111,13 @@ function svgOptim() {
       js2svg: {
         pretty: true,
         indent: 2
-      }
+      },
+      plugins: [
+        {
+          name: 'removeViewBox',
+          active: false
+        }
+      ]
     }))
 		.pipe(cheerio({
 			run: ($) => {
@@ -185,7 +191,9 @@ function htmlMinify() {
 
 
 exports.styles  = styles
-exports.sprite  = series(svgOptim, sprite)
+exports.spriter = series(svgOptim, sprite)
+exports.sprite  = sprite
+exports.svgo    = svgOptim
 exports.images  = images
 exports.scripts = scripts
 exports.clean   = clean
