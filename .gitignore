@@ -13,4 +13,5 @@ source/css/*.map
 Thumbs.db
 build/
 /**/package-lock.json
-/**/bundle.min.js
+/**/vendor.min.js
+/**/main.min.js
