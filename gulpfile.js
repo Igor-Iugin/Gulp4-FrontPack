@@ -1,6 +1,6 @@
 
 /* Other */
-const { src, dest, parallel, series, watch } = require('gulp')
+const { src, dest, parallel, series, watch, tree } = require('gulp')
 const server       = require('browser-sync').create()
 const bssi         = require('browsersync-ssi')
 const ssi          = require('ssi')
@@ -16,8 +16,12 @@ const htmlmin      = require('gulp-htmlmin')
 const wpStream     = require('webpack-stream')
 
 /* CSS */
-const sass         = require('gulp-sass')
 const postcss      = require('gulp-postcss')
+const nesting      = require('postcss-nesting')
+const mqPacker     = require('css-mqpacker')
+const atImport     = require("postcss-import")
+const easyImport   = require("postcss-easy-import")
+const normalize    = require("postcss-normalize")
 const autoprefixer = require('autoprefixer')
 const cssnano      = require('cssnano')
 
@@ -38,7 +42,7 @@ function browserSync() {
 			baseDir: 'source/',
 			middleware: bssi({ baseDir: 'source/', ext: '.html' })
 		},
-    browser: 'firefox',
+    // browser: 'firefox',
 		ghostMode: { clicks: false },
 		cors: true,
 		notify: false,
@@ -50,7 +54,7 @@ function browserSync() {
 function watcher() {
 	const fileswatch   = 'html,woff2'
 
-	watch('source/sass/**/*.scss', { usePolling: true }, styles)
+	watch(['source/css/**/*.css', '!source/css/style.css'], { usePolling: true }, styles)
 	watch(['source/scripts/main.min.js', 'source/scripts/vendor.min.js']).on('change', server.reload)
 	watch(`source/**/*.{${fileswatch}}`, { usePolling: true }).on('change', server.reload)
 }
@@ -60,15 +64,27 @@ function watcher() {
 
 //* Styles
 function styles() {
-	return src('source/sass/style.scss')
+	return src('source/css/main.css')
 		.pipe(sourcemaps.init())
-		.pipe(sass({
-			includePaths: require('scss-resets').includePaths
-		}))
-    .pipe(postcss([autoprefixer()]))
+    .pipe(postcss([
+			nesting(),
+			normalize({ forceImport: false }),
+			easyImport({
+				prefix: '_'
+			}),
+			mqPacker(),
+			autoprefixer()
+		]))
 		.pipe(sourcemaps.write('.'))
+		.pipe(rename('style.css'))
 		.pipe(dest('source/css'))
 		.pipe(server.stream())
+	}
+	
+function normalization() {
+	return src('source/css/common/normalize.css')
+		.pipe(postcss([normalize()]))
+		.pipe(dest('source/css/common'))
 }
 
 //* Sprite
@@ -166,7 +182,7 @@ function scripts() {
 //* Move files
 function moveFiles() {
 	return src([
-		'source/css/*.css',
+		'source/css/style.css',
 		'source/images/**/*.*',
 		'source/scripts/bundle.min.js',
 		'source/fonts/**/*'
@@ -219,6 +235,7 @@ exports.svgo    = svgOptim
 exports.images  = images
 exports.scripts = scripts
 exports.clean   = clean
+exports.normalization  = normalization
 exports.minify  = parallel(stylesMinify, scripts, htmlMinify)
 exports.build   = series(clean, moveFiles, html, parallel(stylesMinify, htmlMinify))
 exports.default = series(styles, parallel(browserSync, scripts, watcher))

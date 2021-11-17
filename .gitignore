@@ -8,7 +8,7 @@
 *.lock
 node_modules/
 npm-debug.*
-source/css/*.css
+source/css/style.css
 source/css/*.map
 Thumbs.db
 build/

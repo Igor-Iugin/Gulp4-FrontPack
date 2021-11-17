@@ -1,4 +1,4 @@
-// Сброс основных стилей
+/* Сброс основных стилей */
 *,
 *::before,
 *::after {
@@ -30,8 +30,7 @@ button {
   background-color: inherit;
   cursor: pointer;
 }
-
-// Класс для доступных пряток текста
+/* Класс для доступных пряток текста */
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -43,7 +42,7 @@ button {
   overflow: hidden;
 }
 
-// Медиа для ретина экранов
-// @media (min-resolution: 2dppx) {
+/* Медиа для ретина экранов */
+/* @media (min-resolution: 2dppx) {
 
-// }
+} */
