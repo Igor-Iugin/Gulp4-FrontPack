@@ -68,7 +68,6 @@ function styles() {
 		.pipe(sourcemaps.init())
     .pipe(postcss([
 			nesting(),
-			normalize({ forceImport: false }),
 			easyImport({
 				prefix: '_'
 			}),
@@ -79,7 +78,7 @@ function styles() {
 		.pipe(rename('style.css'))
 		.pipe(dest('source/css'))
 		.pipe(server.stream())
-	}
+}
 	
 function normalization() {
 	return src('source/css/common/normalize.css')
